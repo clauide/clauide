@@ -290,6 +290,22 @@ function listContainerIds() {
   return loadStore().sessions.map((s) => s.containerId)
 }
 
+/** The docker half of "reset everything": every container, both volumes behind each session, and
+ *  the built images. Runs before userData is wiped, since the session store is what names them. */
+async function destroyAll() {
+  for (const record of loadStore().sessions) {
+    await run('docker', ['rm', '-f', record.containerId]).catch(() => {})
+    await run('docker', ['volume', 'rm', record.volume]).catch(() => {})
+    if (record.claudeVolume) await run('docker', ['volume', 'rm', record.claudeVolume]).catch(() => {})
+  }
+  const output = await run('docker', ['image', 'ls', 'clauide-vscode', '--format', '{{.Repository}}:{{.Tag}}']).catch(
+    () => ''
+  )
+  for (const tag of output.split('\n').map((line) => line.trim()).filter(Boolean)) {
+    await run('docker', ['rmi', '-f', tag]).catch(() => {})
+  }
+}
+
 module.exports = {
   createSession,
   peekNextName,
@@ -298,6 +314,7 @@ module.exports = {
   renameSession,
   removeSession,
   listContainerIds,
+  destroyAll,
   findIdByContainerId,
   imageExists,
   ensureImage,

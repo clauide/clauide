@@ -876,3 +876,82 @@
 #update-toast-dismiss:hover {
   color: var(--text);
 }
+
+#clauide-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.settings-row {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  padding: 16px;
+}
+
+.settings-row-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.settings-row-title {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.settings-row-text {
+  margin: 6px 0 0;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--dim);
+}
+
+.row-btn {
+  -webkit-app-region: no-drag;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+  background: var(--accent);
+  color: var(--bg);
+  border: none;
+  font-family: inherit;
+  font-weight: 700;
+  font-size: 12px;
+  padding: 8px 16px;
+  cursor: pointer;
+}
+
+.row-btn:hover {
+  filter: brightness(1.1);
+}
+
+.row-btn:disabled {
+  cursor: default;
+}
+
+.row-btn.danger {
+  background: none;
+  border: 1px solid var(--pink);
+  color: var(--pink);
+}
+
+.row-btn.danger.armed {
+  background: var(--pink);
+  color: var(--bg);
+}
+
+.row-btn.busy::before {
+  content: '';
+  width: 11px;
+  height: 11px;
+  border: 2px solid transparent;
+  border-top-color: currentColor;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}

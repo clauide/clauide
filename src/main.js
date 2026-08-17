@@ -13,6 +13,7 @@ const claudeConfig = require('./claudeConfig')
 const ptyManager = require('./pty')
 const bridge = require('./bridge')
 const updater = require('./updater')
+const reset = require('./reset')
 const windowRef = require('./windowRef')
 const { syncEverywhere, syncAllEverywhere } = require('./sync')
 
@@ -223,6 +224,10 @@ ipcMain.handle('claudeConfig:save', (_event, input) => claudeConfig.save(input))
 
 ipcMain.on('update:install', () => updater.install())
 ipcMain.on('update:openReleases', () => updater.openReleases())
+ipcMain.handle('update:check', () => updater.check())
+
+ipcMain.handle('app:version', () => app.getVersion())
+ipcMain.handle('app:reset', () => reset.resetEverything())
 
 ipcMain.handle('lsp:list', () => lsp.listServers())
 ipcMain.handle('lsp:setEnabled', async (_event, id, enabled) => {

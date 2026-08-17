@@ -27,6 +27,7 @@
           <div class="settings-tab" data-panel="github-panel">GitHub</div>
           <div class="settings-tab" data-panel="lsp-panel">LSP Servers</div>
           <div class="settings-tab" data-panel="claude-panel">Claude Code</div>
+          <div class="settings-tab" data-panel="clauide-panel">Clauide</div>
         </div>
 
         <div id="skills-panel" class="settings-panel">
@@ -92,6 +93,27 @@
             <option value="max">Effort: max</option>
           </select>
           <button id="claude-save-btn" disabled>Save</button>
+        </div>
+
+        <div id="clauide-panel" class="settings-panel" hidden>
+          <div class="settings-row">
+            <div class="settings-row-body">
+              <p class="settings-row-title">Version <span id="clauide-version">…</span></p>
+              <p class="settings-row-text" id="clauide-update-status">Updates download on their own and install when you quit.</p>
+            </div>
+            <button id="clauide-check-btn" class="row-btn">Check for Updates</button>
+          </div>
+
+          <div class="settings-row">
+            <div class="settings-row-body">
+              <p class="settings-row-title">Reset Everything</p>
+              <p class="settings-row-text">
+                Deletes every session along with its workspace and Claude Code history, plus all skills,
+                rules, MCP servers, extensions, connections and the base image. Clauide restarts empty.
+              </p>
+            </div>
+            <button id="clauide-reset-btn" class="row-btn danger">Reset Everything</button>
+          </div>
         </div>
       </div>
 
@@ -209,5 +231,6 @@
     <script src="settings-github.js"></script>
     <script src="settings-lsp.js"></script>
     <script src="settings-claude.js"></script>
+    <script src="settings-clauide.js"></script>
   </body>
 </html>

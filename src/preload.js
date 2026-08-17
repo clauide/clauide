@@ -55,6 +55,10 @@ contextBridge.exposeInMainWorld('clauide', {
   onUpdateManual: (callback) => ipcRenderer.on('update:manual', (_event, version) => callback(version)),
   installUpdate: () => ipcRenderer.send('update:install'),
   openReleases: () => ipcRenderer.send('update:openReleases'),
+  checkForUpdates: () => ipcRenderer.invoke('update:check'),
+
+  getVersion: () => ipcRenderer.invoke('app:version'),
+  resetEverything: () => ipcRenderer.invoke('app:reset'),
 
   createPty: (containerId) => ipcRenderer.invoke('pty:create', containerId),
   writePty: (ptyId, data) => ipcRenderer.send('pty:write', ptyId, data),

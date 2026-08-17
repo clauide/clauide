@@ -38,6 +38,21 @@ function log(message) {
   console.log('[updater]', message)
 }
 
+/** Backs the Settings button. Resolving to 'available' only means the download started — the
+ *  existing update-downloaded toast is what tells the user it is ready to install. */
+async function check() {
+  if (!app.isPackaged) return { status: 'dev' }
+  try {
+    const result = await autoUpdater.checkForUpdates()
+    const version = result?.updateInfo?.version
+    if (!version || version === app.getVersion()) return { status: 'current' }
+    return { status: 'available', version }
+  } catch (err) {
+    log(err)
+    return { status: 'error', message: err.message }
+  }
+}
+
 function install() {
   autoUpdater.quitAndInstall()
 }
@@ -46,4 +61,4 @@ function openReleases() {
   shell.openExternal(RELEASES_URL)
 }
 
-module.exports = { start, install, openReleases }
+module.exports = { start, check, install, openReleases }
