@@ -1,0 +1,34 @@
+:root {
+  --bg: #131310;
+  --panel: #1c1c17;
+  --border: rgba(255, 255, 255, 0.08);
+  --text: #f8f8f2;
+  --dim: #75715e;
+  --accent: #a6e22e;
+  --pink: #f92672;
+  --blue: #66d9ef;
+  --orange: #fd971f;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+html,
+body,
+#app {
+  height: 100%;
+  overflow: hidden;
+}
+
+body {
+  margin: 0;
+  -webkit-app-region: drag;
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif;
+  background-color: var(--bg);
+}

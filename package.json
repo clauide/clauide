@@ -1,0 +1,45 @@
+{
+  "name": "clauide",
+  "version": "0.1.0",
+  "main": "src/main.js",
+  "scripts": {
+    "start": "electron .",
+    "dist": "electron-builder",
+    "postinstall": "electron-builder install-app-deps"
+  },
+  "build": {
+    "appId": "com.clauide",
+    "productName": "Clauide",
+    "files": [
+      "src/**/*",
+      "package.json",
+      "node_modules/**"
+    ],
+    "extraResources": [
+      {
+        "from": "docker",
+        "to": "docker"
+      }
+    ],
+    "mac": {
+      "target": "zip",
+      "category": "public.app-category.developer-tools",
+      "identity": "-",
+      "hardenedRuntime": false
+    }
+  },
+  "devDependencies": {
+    "electron": "^43.4.0",
+    "electron-builder": "^26.15.3"
+  },
+  "allowScripts": {
+    "electron@43.4.0": true,
+    "electron-winstaller@5.4.0": true,
+    "node-pty@1.1.0": true
+  },
+  "dependencies": {
+    "node-pty": "^1.1.0",
+    "xterm": "^5.3.0",
+    "xterm-addon-fit": "^0.8.0"
+  }
+}

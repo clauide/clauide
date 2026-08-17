@@ -1,0 +1,213 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Clauide</title>
+    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="onboarding.css" />
+    <link rel="stylesheet" href="app.css" />
+    <link rel="stylesheet" href="../node_modules/xterm/css/xterm.css" />
+  </head>
+  <body>
+    <div id="onboarding"></div>
+    <div id="app" hidden>
+      <div id="tabbar">
+        <button id="new-session-btn">+ New Session</button>
+        <div id="session-list"></div>
+        <div id="tabbar-spacer"></div>
+        <button id="settings-btn"><span class="gear-icon">⚙</span> Settings</button>
+      </div>
+      <div id="main"></div>
+      <div id="settings-view" hidden>
+        <div id="settings-tabbar">
+          <div class="settings-tab active" data-panel="skills-panel">Skills</div>
+          <div class="settings-tab" data-panel="mcp-panel">MCP Servers</div>
+          <div class="settings-tab" data-panel="rules-panel">Rules</div>
+          <div class="settings-tab" data-panel="extensions-panel">Extensions</div>
+          <div class="settings-tab" data-panel="github-panel">GitHub</div>
+          <div class="settings-tab" data-panel="lsp-panel">LSP Servers</div>
+          <div class="settings-tab" data-panel="claude-panel">Claude Code</div>
+        </div>
+
+        <div id="skills-panel" class="settings-panel">
+          <div id="skills-grid"></div>
+          <button id="new-skill-btn">+ New Skill</button>
+        </div>
+
+        <div id="mcp-panel" class="settings-panel" hidden>
+          <div id="mcp-grid"></div>
+          <button id="new-mcp-btn">+ New MCP Server</button>
+        </div>
+
+        <div id="rules-panel" class="settings-panel" hidden>
+          <div id="rules-grid"></div>
+          <button id="new-rule-btn">+ New Rule</button>
+        </div>
+
+        <div id="extensions-panel" class="settings-panel" hidden>
+          <div id="extensions-grid"></div>
+          <button id="new-extension-btn">+ Add Extension</button>
+        </div>
+
+        <div id="github-panel" class="settings-panel" hidden>
+          <div class="main-overlay" style="position: static; height: 100%">
+            <div class="empty-state" id="github-disconnected">
+              <p class="empty-state-title">Connect GitHub</p>
+              <p class="empty-state-text">Lets every session clone, push and pull over HTTPS.</p>
+              <button class="overlay-btn" id="github-import-btn">Import from this Mac</button>
+              <p class="empty-state-text" id="github-error" hidden></p>
+              <p class="empty-state-text" style="white-space: normal; max-width: 320px">
+                or paste a Personal Access Token (GitHub → Settings → Developer settings → Personal access tokens, scope: repo)
+              </p>
+              <div id="github-pat-row">
+                <input id="github-pat-input" placeholder="ghp_..." />
+                <button class="overlay-btn" id="github-pat-btn">Save</button>
+              </div>
+            </div>
+            <div class="empty-state" id="github-connected" hidden>
+              <p class="empty-state-title" id="github-username"></p>
+              <p class="empty-state-text">Connected — synced to every session.</p>
+              <button class="overlay-btn" id="github-disconnect-btn">Disconnect</button>
+            </div>
+          </div>
+        </div>
+
+        <div id="lsp-panel" class="settings-panel" hidden>
+          <div id="lsp-grid"></div>
+        </div>
+
+        <div id="claude-panel" class="settings-panel" hidden>
+          <select id="claude-model">
+            <option value="">Model: default</option>
+            <option value="sonnet">Model: sonnet</option>
+            <option value="opus">Model: opus</option>
+            <option value="haiku">Model: haiku</option>
+          </select>
+          <select id="claude-effort">
+            <option value="">Effort: default</option>
+            <option value="low">Effort: low</option>
+            <option value="medium">Effort: medium</option>
+            <option value="high">Effort: high</option>
+            <option value="xhigh">Effort: xhigh</option>
+            <option value="max">Effort: max</option>
+          </select>
+          <button id="claude-save-btn" disabled>Save</button>
+        </div>
+      </div>
+
+      <div id="mcp-modal" hidden>
+        <div id="mcp-modal-box">
+          <input id="mcp-name" placeholder="Name" />
+          <select id="mcp-type">
+            <option value="http">Type: HTTP</option>
+            <option value="sse">Type: SSE</option>
+            <option value="stdio">Type: stdio</option>
+          </select>
+
+          <div id="mcp-remote-fields">
+            <input id="mcp-url" placeholder="https://mcp.example.com/mcp" />
+            <textarea id="mcp-headers" placeholder="One header per line, e.g.&#10;Authorization: Bearer ..." rows="3"></textarea>
+          </div>
+
+          <div id="mcp-stdio-fields" hidden>
+            <input id="mcp-command" placeholder="Command (e.g. npx)" />
+            <input id="mcp-args" placeholder="Args (space-separated, e.g. -y @scope/server)" />
+            <textarea id="mcp-env" placeholder="One variable per line, e.g.&#10;API_KEY=..." rows="3"></textarea>
+          </div>
+
+          <div class="skill-modal-actions">
+            <button id="mcp-delete-btn" class="danger">Delete</button>
+            <span class="skill-modal-spacer"></span>
+            <button id="mcp-cancel-btn">Cancel</button>
+            <button id="mcp-save-btn" disabled>Save</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="rule-modal" hidden>
+        <div id="rule-modal-box">
+          <input id="rule-name" placeholder="Name" />
+          <input id="rule-paths" placeholder="Paths (comma-separated globs, e.g. src/**/*.ts — empty = always)" />
+          <textarea id="rule-body" placeholder="Instructions..." rows="10"></textarea>
+          <div class="skill-modal-actions">
+            <button id="rule-delete-btn" class="danger">Delete</button>
+            <span class="skill-modal-spacer"></span>
+            <button id="rule-cancel-btn">Cancel</button>
+            <button id="rule-save-btn" disabled>Save</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="extension-modal" hidden>
+        <div id="extension-modal-box">
+          <input id="extension-search" placeholder="Search extensions (e.g. prettier, python, gitlens)..." />
+          <div id="extension-results"></div>
+          <div id="extension-selected" hidden>
+            <p class="empty-state-title" id="extension-selected-name"></p>
+            <p class="empty-state-text" id="extension-selected-id"></p>
+          </div>
+          <div class="skill-modal-actions">
+            <button id="extension-delete-btn" class="danger" hidden>Remove</button>
+            <span class="skill-modal-spacer"></span>
+            <button id="extension-cancel-btn">Cancel</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="skill-modal" hidden>
+        <div id="skill-modal-box">
+          <input id="skill-name" placeholder="Name" />
+          <textarea id="skill-description" placeholder="Description" rows="2"></textarea>
+          <div class="skill-modal-row">
+            <select id="skill-model">
+              <option value="">Model: inherit</option>
+              <option value="sonnet">Model: sonnet</option>
+              <option value="opus">Model: opus</option>
+              <option value="haiku">Model: haiku</option>
+            </select>
+            <select id="skill-effort">
+              <option value="">Effort: inherit</option>
+              <option value="low">Effort: low</option>
+              <option value="medium">Effort: medium</option>
+              <option value="high">Effort: high</option>
+              <option value="xhigh">Effort: xhigh</option>
+              <option value="max">Effort: max</option>
+            </select>
+          </div>
+          <textarea id="skill-body" placeholder="Instructions..." rows="10"></textarea>
+          <div class="skill-toggle-row">
+            <span class="skill-toggle-label">Run as background subagent</span>
+            <label class="switch">
+              <input type="checkbox" id="skill-fork" />
+              <span class="switch-track"></span>
+            </label>
+          </div>
+          <div class="skill-toggle-row">
+            <span class="skill-toggle-label">Let Claude invoke automatically</span>
+            <label class="switch">
+              <input type="checkbox" id="skill-auto-invoke" checked />
+              <span class="switch-track"></span>
+            </label>
+          </div>
+          <div class="skill-modal-actions">
+            <button id="skill-delete-btn" class="danger">Delete</button>
+            <span class="skill-modal-spacer"></span>
+            <button id="skill-cancel-btn">Cancel</button>
+            <button id="skill-save-btn">Save</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script src="../node_modules/xterm/lib/xterm.js"></script>
+    <script src="../node_modules/xterm-addon-fit/lib/xterm-addon-fit.js"></script>
+    <script src="onboarding.js"></script>
+    <script src="app.js"></script>
+    <script src="settings-skills.js"></script>
+    <script src="settings-mcp.js"></script>
+    <script src="settings-rules.js"></script>
+    <script src="settings-extensions.js"></script>
+    <script src="settings-github.js"></script>
+    <script src="settings-lsp.js"></script>
+    <script src="settings-claude.js"></script>
+  </body>
+</html>

@@ -1,0 +1,15 @@
+{
+  "workbench.startupEditor": "none",
+  "chat.disableAIFeatures": true,
+  "chat.agent.enabled": false,
+  "chat.agentHost.claudeAgent.enabled": false,
+  "chat.agentHost.codexAgent.enabled": false,
+  "security.workspace.trust.enabled": false,
+  "workbench.welcomePage.walkthroughs.openOnInstall": false,
+  "workbench.tips.enabled": false,
+  "workbench.colorTheme": "Monokai",
+  "window.commandCenter": false,
+  "workbench.navigationControl.enabled": false,
+  "workbench.layoutControl.enabled": false,
+  "workbench.statusBar.visible": false
+}

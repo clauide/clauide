@@ -1,0 +1,9 @@
+{
+  "hasCompletedOnboarding": true,
+  "projects": {
+    "/home/clauide/workspace": {
+      "hasTrustDialogAccepted": true,
+      "hasCompletedProjectOnboarding": true
+    }
+  }
+}
