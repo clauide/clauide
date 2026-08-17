@@ -15,7 +15,8 @@
       {
         "provider": "github",
         "owner": "clauide",
-        "repo": "clauide"
+        "repo": "clauide",
+        "releaseType": "release"
       }
     ],
     "files": [
