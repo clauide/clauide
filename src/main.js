@@ -247,6 +247,10 @@ if (gotSingleInstanceLock) {
     bridge.start()
     createWindow()
     updater.start()
+    // An app update can ship a new Dockerfile, and the rebuild that follows takes minutes. Kicking
+    // it off here (rather than awaiting it, or leaving it to the first session start) means it
+    // overlaps with the user getting their bearings instead of blocking them.
+    sessions.ensureImage().catch((err) => console.error('[image] build failed', err))
   })
 
   app.on('window-all-closed', () => {

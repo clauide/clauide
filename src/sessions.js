@@ -1,11 +1,38 @@
 const { execFile } = require('node:child_process')
 const fs = require('node:fs')
 const path = require('node:path')
+const crypto = require('node:crypto')
 const { app } = require('electron')
 
-const IMAGE = 'clauide-vscode:base'
 const storePath = () => path.join(app.getPath('userData'), 'sessions.json')
 const dockerfileDir = () => path.join(app.isPackaged ? process.resourcesPath : app.getAppPath(), 'docker')
+
+/** The image tag is derived from the contents of the bundled docker/ directory, so shipping a
+ *  changed Dockerfile (or anything else baked into the image) produces a tag nobody has built yet
+ *  and ensureImage() rebuilds on its own. A fixed tag would leave every existing install pinned to
+ *  whatever it built first, no matter how many app updates it received. */
+let imageTag = null
+
+function imageName() {
+  if (imageTag) return imageTag
+  const dir = dockerfileDir()
+  const hash = crypto.createHash('sha256')
+  const walk = (current) => {
+    const entries = fs.readdirSync(current, { withFileTypes: true }).sort((a, b) => a.name.localeCompare(b.name))
+    for (const entry of entries) {
+      const full = path.join(current, entry.name)
+      if (entry.isDirectory()) {
+        walk(full)
+      } else {
+        hash.update(path.relative(dir, full))
+        hash.update(fs.readFileSync(full))
+      }
+    }
+  }
+  walk(dir)
+  imageTag = `clauide-vscode:${hash.digest('hex').slice(0, 12)}`
+  return imageTag
+}
 
 const run = (cmd, args) =>
   new Promise((resolve, reject) => execFile(cmd, args, (err, stdout) => (err ? reject(err) : resolve(stdout))))
@@ -13,9 +40,22 @@ const run = (cmd, args) =>
 let imageBuildInFlight = null
 
 async function imageExists() {
-  return run('docker', ['image', 'inspect', IMAGE])
+  return run('docker', ['image', 'inspect', imageName()])
     .then(() => true)
     .catch(() => false)
+}
+
+/** Every superseded build is a few GB of layers nobody will use again. Images still backing a
+ *  running container refuse to be removed, which is exactly the desired behaviour — those get
+ *  collected on a later pass, once that container has been recreated on the current image. */
+async function pruneOldImages() {
+  const current = imageName()
+  const output = await run('docker', ['image', 'ls', 'clauide-vscode', '--format', '{{.Repository}}:{{.Tag}}']).catch(
+    () => ''
+  )
+  for (const tag of output.split('\n').map((line) => line.trim()).filter(Boolean)) {
+    if (tag !== current) await run('docker', ['rmi', tag]).catch(() => {})
+  }
 }
 
 /** Builds the base image from the bundled Dockerfile if missing. Deliberately re-checks every
@@ -25,9 +65,11 @@ async function imageExists() {
 async function ensureImage() {
   if (await imageExists()) return
   if (!imageBuildInFlight) {
-    imageBuildInFlight = run('docker', ['build', '-t', IMAGE, dockerfileDir()]).finally(() => {
-      imageBuildInFlight = null
-    })
+    imageBuildInFlight = run('docker', ['build', '-t', imageName(), dockerfileDir()])
+      .then(() => pruneOldImages())
+      .finally(() => {
+        imageBuildInFlight = null
+      })
   }
   await imageBuildInFlight
 }
@@ -131,7 +173,7 @@ async function startContainer(containerId, volume, claudeVolume) {
     `${volume}:/home/clauide/workspace`,
     '-v',
     `${claudeVolume}:/home/clauide/.claude`,
-    IMAGE,
+    imageName(),
     '--auth',
     'none',
     '/home/clauide/workspace'
@@ -258,5 +300,6 @@ module.exports = {
   listContainerIds,
   findIdByContainerId,
   imageExists,
+  ensureImage,
   isRunning
 }
