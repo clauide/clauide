@@ -5,10 +5,18 @@ Isolated Claude Code sessions, each running in its own Docker container, in a na
 ## Install
 
 ```sh
-brew install --cask clauide/tap/clauide
+brew install --cask --no-quarantine clauide/tap/clauide
 ```
 
-Homebrew removes the quarantine flag during install, so the app opens without a Gatekeeper prompt.
+Clauide is signed with a self-signed certificate rather than a paid Apple Developer ID, so macOS
+refuses to open it while the quarantine flag is set. Homebrew applies that flag by default;
+`--no-quarantine` skips it and the app opens normally.
+
+Installing without the flag leaves the app quarantined. Clearing it afterwards has the same effect:
+
+```sh
+xattr -dr com.apple.quarantine /Applications/Clauide.app
+```
 
 Requirements:
 
