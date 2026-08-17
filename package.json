@@ -5,7 +5,6 @@
   "scripts": {
     "start": "electron .",
     "dist": "electron-builder",
-    "release": "electron-builder --publish always",
     "postinstall": "electron-builder install-app-deps"
   },
   "build": {

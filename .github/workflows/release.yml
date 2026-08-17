@@ -51,10 +51,14 @@ jobs:
 
       - run: npm ci
 
-      # electron-builder uploads the artifacts in parallel and each upload creates the release if it
-      # cannot find one, which races into two releases sharing the tag and splits the assets between
-      # them. Creating it up front leaves them a single release to attach to.
-      - name: Create release
+      - name: Build
+        run: npm run dist
+
+      # electron-builder's own publisher is not safe to re-run: it races itself into two releases
+      # sharing a tag, and on a retry it leaves the previous attempt's assets in place while the
+      # rebuilt ones differ byte for byte. Uploading here instead keeps every asset — and the
+      # checksum the tap records below — coming from the build that just ran.
+      - name: Publish release
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
@@ -62,10 +66,8 @@ jobs:
             gh release create "$GITHUB_REF_NAME" --repo "$GITHUB_REPOSITORY" \
               --title "$GITHUB_REF_NAME" --generate-notes
 
-      - name: Build and publish
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: npm run release
+          gh release upload "$GITHUB_REF_NAME" --repo "$GITHUB_REPOSITORY" --clobber \
+            dist/Clauide-*-arm64.zip dist/Clauide-*-arm64.zip.blockmap dist/latest-mac.yml
 
       - name: Update Homebrew tap
         env:
