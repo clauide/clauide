@@ -51,6 +51,17 @@ jobs:
 
       - run: npm ci
 
+      # electron-builder uploads the artifacts in parallel and each upload creates the release if it
+      # cannot find one, which races into two releases sharing the tag and splits the assets between
+      # them. Creating it up front leaves them a single release to attach to.
+      - name: Create release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release view "$GITHUB_REF_NAME" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1 ||
+            gh release create "$GITHUB_REF_NAME" --repo "$GITHUB_REPOSITORY" \
+              --title "$GITHUB_REF_NAME" --generate-notes
+
       - name: Build and publish
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
