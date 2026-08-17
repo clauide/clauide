@@ -107,6 +107,37 @@ dockerError.innerHTML = `
 mainEl.appendChild(dockerError)
 document.getElementById('docker-retry-btn').addEventListener('click', restoreSessions)
 
+const updateToast = document.createElement('div')
+updateToast.id = 'update-toast'
+updateToast.hidden = true
+updateToast.innerHTML = `
+  <p id="update-toast-text"></p>
+  <button id="update-toast-action" class="overlay-btn"></button>
+  <button id="update-toast-dismiss" title="Dismiss">✕</button>
+`
+document.body.appendChild(updateToast)
+
+const updateToastText = document.getElementById('update-toast-text')
+const updateToastAction = document.getElementById('update-toast-action')
+
+function showUpdateToast(text, actionLabel, onAction) {
+  updateToastText.textContent = text
+  updateToastAction.textContent = actionLabel
+  updateToastAction.onclick = onAction
+  updateToast.hidden = false
+}
+
+document.getElementById('update-toast-dismiss').addEventListener('click', () => {
+  updateToast.hidden = true
+})
+
+window.clauide.onUpdateReady((version) =>
+  showUpdateToast(`Version ${version} is ready.`, 'Restart', () => window.clauide.installUpdate())
+)
+window.clauide.onUpdateManual((version) =>
+  showUpdateToast(`Version ${version} is available.`, 'Download', () => window.clauide.openReleases())
+)
+
 // Covers the gap between "no pane/overlay is showing yet" and "we know whether there are
 // sessions or not" — without it, #main briefly shows its bare background (a "gray flash") both
 // on first launch (while listSessions() is still in flight) and when closing the last session

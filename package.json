@@ -5,11 +5,19 @@
   "scripts": {
     "start": "electron .",
     "dist": "electron-builder",
+    "release": "electron-builder --publish always",
     "postinstall": "electron-builder install-app-deps"
   },
   "build": {
     "appId": "com.clauide",
     "productName": "Clauide",
+    "publish": [
+      {
+        "provider": "github",
+        "owner": "clauide",
+        "repo": "clauide"
+      }
+    ],
     "files": [
       "src/**/*",
       "package.json",
@@ -22,10 +30,17 @@
       }
     ],
     "mac": {
-      "target": "zip",
+      "target": [
+        {
+          "target": "zip",
+          "arch": "arm64"
+        }
+      ],
+      "artifactName": "${productName}-${version}-${arch}.${ext}",
       "category": "public.app-category.developer-tools",
-      "identity": "-",
-      "hardenedRuntime": false
+      "identity": "Clauide Self Signed",
+      "hardenedRuntime": false,
+      "notarize": false
     }
   },
   "devDependencies": {
@@ -38,6 +53,7 @@
     "node-pty@1.1.0": true
   },
   "dependencies": {
+    "electron-updater": "^6.6.2",
     "node-pty": "^1.1.0",
     "xterm": "^5.3.0",
     "xterm-addon-fit": "^0.8.0"

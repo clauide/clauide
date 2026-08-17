@@ -12,6 +12,7 @@ const lsp = require('./lsp')
 const claudeConfig = require('./claudeConfig')
 const ptyManager = require('./pty')
 const bridge = require('./bridge')
+const updater = require('./updater')
 const windowRef = require('./windowRef')
 const { syncEverywhere, syncAllEverywhere } = require('./sync')
 
@@ -220,6 +221,9 @@ ipcMain.handle('github:connectWithToken', async (_event, token) => {
 ipcMain.handle('claudeConfig:get', () => claudeConfig.get())
 ipcMain.handle('claudeConfig:save', (_event, input) => claudeConfig.save(input))
 
+ipcMain.on('update:install', () => updater.install())
+ipcMain.on('update:openReleases', () => updater.openReleases())
+
 ipcMain.handle('lsp:list', () => lsp.listServers())
 ipcMain.handle('lsp:setEnabled', async (_event, id, enabled) => {
   lsp.setEnabled(id, enabled)
@@ -242,6 +246,7 @@ if (gotSingleInstanceLock) {
     process.env.PATH = await resolveDockerPath()
     bridge.start()
     createWindow()
+    updater.start()
   })
 
   app.on('window-all-closed', () => {

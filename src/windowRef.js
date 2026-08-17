@@ -8,8 +8,8 @@ function setMainWindow(win) {
   mainWindow = win
 }
 
-function notify(channel) {
-  mainWindow?.webContents.send(channel)
+function notify(channel, ...args) {
+  mainWindow?.webContents.send(channel, ...args)
 }
 
 module.exports = { setMainWindow, notify }

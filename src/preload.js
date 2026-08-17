@@ -51,6 +51,11 @@ contextBridge.exposeInMainWorld('clauide', {
   setLspServerEnabled: (id, enabled) => ipcRenderer.invoke('lsp:setEnabled', id, enabled),
   onLspChanged: (callback) => ipcRenderer.on('lsp:changed', () => callback()),
 
+  onUpdateReady: (callback) => ipcRenderer.on('update:ready', (_event, version) => callback(version)),
+  onUpdateManual: (callback) => ipcRenderer.on('update:manual', (_event, version) => callback(version)),
+  installUpdate: () => ipcRenderer.send('update:install'),
+  openReleases: () => ipcRenderer.send('update:openReleases'),
+
   createPty: (containerId) => ipcRenderer.invoke('pty:create', containerId),
   writePty: (ptyId, data) => ipcRenderer.send('pty:write', ptyId, data),
   resizePty: (ptyId, cols, rows) => ipcRenderer.send('pty:resize', ptyId, cols, rows),
