@@ -1055,3 +1055,113 @@
   font-size: 12px;
   line-height: 1.6;
 }
+
+.settings-row-stacked {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 12px;
+}
+
+#env-list {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--border);
+}
+
+.env-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--border);
+}
+
+.env-row:last-child {
+  border-bottom: none;
+}
+
+.env-row.syncing {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.env-key {
+  flex-shrink: 0;
+  min-width: 160px;
+  font-family: 'SF Mono', Menlo, monospace;
+  font-size: 12px;
+  color: var(--text);
+}
+
+.env-value {
+  flex: 1;
+  min-width: 0;
+  font-family: 'SF Mono', Menlo, monospace;
+  font-size: 12px;
+  color: var(--dim);
+  overflow-x: auto;
+  white-space: nowrap;
+  scrollbar-width: none;
+}
+
+.env-value.revealed {
+  color: var(--blue);
+}
+
+.env-icon-btn {
+  -webkit-app-region: no-drag;
+  flex-shrink: 0;
+  background: none;
+  border: none;
+  color: var(--dim);
+  font-size: 12px;
+  line-height: 1;
+  padding: 4px;
+  cursor: pointer;
+}
+
+.env-icon-btn:hover {
+  color: var(--text);
+}
+
+.env-delete:hover {
+  color: var(--pink);
+}
+
+#env-add-row {
+  display: flex;
+  gap: 8px;
+}
+
+#env-add-row input {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  color: var(--text);
+  font-family: 'SF Mono', Menlo, monospace;
+  font-size: 12px;
+  padding: 8px 12px;
+  min-height: 36px;
+}
+
+#env-add-row input:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+#env-add-row input.invalid {
+  border-color: var(--pink);
+}
+
+#env-key {
+  width: 180px;
+  flex-shrink: 0;
+}
+
+#env-value {
+  flex: 1;
+  min-width: 0;
+}
+
+#env-error {
+  color: var(--pink);
+}

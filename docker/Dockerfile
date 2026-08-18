@@ -27,6 +27,15 @@ RUN curl -fsSL https://claude.ai/install.sh | bash -s 2.1.233
 RUN mise use --global node@22 \
  && echo 'export PATH="$HOME/.local/share/mise/shims:$PATH"' >> /home/clauide/.profile
 
+# Environment variables are provisioned per-container by env.js, which writes ~/.clauide/env. Both
+# startup files load it because they cover different shells: .profile is what `bash -lc` reads (the
+# Claude Code process we spawn), .bashrc is what the interactive terminals inside VS Code read.
+# `set -a` exports everything the file defines without each line needing its own export.
+RUN printf '%s\n' \
+      'set -a' \
+      '[ -f "$HOME/.clauide/env" ] && . "$HOME/.clauide/env"' \
+      'set +a' | tee -a /home/clauide/.profile >> /home/clauide/.bashrc
+
 COPY --chown=clauide:clauide home/ /home/
 
 RUN mkdir -p /home/clauide/workspace

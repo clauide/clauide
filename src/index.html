@@ -110,6 +110,22 @@
             <button id="clauide-check-btn" class="row-btn">Check for Updates</button>
           </div>
 
+          <div class="settings-row settings-row-stacked">
+            <div class="settings-row-body">
+              <p class="settings-row-title">Environment Variables</p>
+              <p class="settings-row-text">
+                Available to Claude Code and to the terminals you open in the editor, in every session.
+              </p>
+            </div>
+            <div id="env-list"></div>
+            <div id="env-add-row">
+              <input id="env-key" placeholder="KEY" spellcheck="false" />
+              <input id="env-value" placeholder="value" spellcheck="false" />
+              <button id="env-add-btn" class="row-btn" disabled>Add</button>
+            </div>
+            <p class="settings-row-text" id="env-error" hidden></p>
+          </div>
+
           <div class="settings-row">
             <div class="settings-row-body">
               <p class="settings-row-title">Reset Everything</p>
@@ -269,6 +285,7 @@
     <script src="settings-lsp.js"></script>
     <script src="settings-claude.js"></script>
     <script src="settings-scripts.js"></script>
+    <script src="settings-env.js"></script>
     <script src="settings-clauide.js"></script>
   </body>
 </html>

@@ -51,6 +51,12 @@ contextBridge.exposeInMainWorld('clauide', {
   setLspServerEnabled: (id, enabled) => ipcRenderer.invoke('lsp:setEnabled', id, enabled),
   onLspChanged: (callback) => ipcRenderer.on('lsp:changed', () => callback()),
 
+  listEnvVars: () => ipcRenderer.invoke('env:list'),
+  revealEnvVar: (key) => ipcRenderer.invoke('env:reveal', key),
+  saveEnvVar: (key, value) => ipcRenderer.invoke('env:save', key, value),
+  deleteEnvVar: (key) => ipcRenderer.invoke('env:delete', key),
+  onEnvChanged: (callback) => ipcRenderer.on('env:changed', () => callback()),
+
   listScripts: () => ipcRenderer.invoke('scripts:list'),
   saveScript: (script) => ipcRenderer.invoke('scripts:save', script),
   deleteScript: (id) => ipcRenderer.invoke('scripts:delete', id),

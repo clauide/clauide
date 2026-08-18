@@ -10,6 +10,7 @@ const extensions = require('./extensions')
 const github = require('./github')
 const lsp = require('./lsp')
 const claudeConfig = require('./claudeConfig')
+const env = require('./env')
 const ptyManager = require('./pty')
 const scripts = require('./scripts')
 const bridge = require('./bridge')
@@ -263,6 +264,21 @@ ipcMain.handle('update:check', () => updater.check())
 
 ipcMain.handle('app:version', () => app.getVersion())
 ipcMain.handle('app:reset', () => reset.resetEverything())
+
+ipcMain.handle('env:list', () => env.listKeys())
+// Values are handed over one at a time, only when the user clicks the eye — the list call above
+// deliberately carries names alone so secrets never sit in the renderer unasked.
+ipcMain.handle('env:reveal', (_event, key) => env.reveal(key))
+ipcMain.handle('env:save', async (_event, key, value) => {
+  env.setVar(key, value)
+  await syncEverywhere('env')
+  windowRef.notify('env:changed')
+})
+ipcMain.handle('env:delete', async (_event, key) => {
+  env.deleteVar(key)
+  await syncEverywhere('env')
+  windowRef.notify('env:changed')
+})
 
 ipcMain.handle('lsp:list', () => lsp.listServers())
 ipcMain.handle('lsp:setEnabled', async (_event, id, enabled) => {
