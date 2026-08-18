@@ -9,9 +9,9 @@ const MAX_OUTPUT = 10 * 1024 * 1024
 
 const storePath = () => path.join(app.getPath('userData'), 'scripts.json')
 
-// Keyed by containerId. Only ever holds the most recent run, which is all the session's "View
-// output" button shows — scripts re-run whenever a container comes up, so nothing worth persisting
-// across an app restart survives the containers it describes anyway.
+// Keyed by containerId, holding the one run each session ever gets. Kept in memory only: the button
+// that reads it lives on the session tab, and a session outliving an app restart has nothing left
+// to report anyway, since its scripts ran back when it was created.
 const lastRuns = new Map()
 
 function loadScripts() {
@@ -94,11 +94,11 @@ function execScript(containerId, body) {
   })
 }
 
-/** Runs every enabled script, in order, inside one container. Unlike the other syncables this is
- *  an action rather than mirrored state: it runs on each container start (including recreates,
- *  where anything installed outside the two volumes is gone) and the session is held back until it
- *  finishes, so nobody gets a session that looks ready while its setup is still running. */
-async function syncToContainer(containerId) {
+/** Runs every enabled script, in order, inside a freshly created session's container, and holds
+ *  the session back until they finish so nobody lands in one that looks ready while its setup is
+ *  still running. Creation is the only trigger: running these again on every container start would
+ *  mean re-cloning repositories that are still sitting in the session's volume. */
+async function runForContainer(containerId) {
   const enabled = loadScripts().filter((s) => s.enabled)
   const results = []
   lastRuns.set(containerId, results)
@@ -121,4 +121,4 @@ async function syncToContainer(containerId) {
   windowRef.notify('scripts:done', { containerId, failed: results.some((r) => r.exitCode) })
 }
 
-module.exports = { listScripts, saveScript, deleteScript, setEnabled, moveScript, lastRun, syncToContainer }
+module.exports = { listScripts, saveScript, deleteScript, setEnabled, moveScript, lastRun, runForContainer }

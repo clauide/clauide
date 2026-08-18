@@ -169,8 +169,14 @@
       <div id="script-modal" hidden>
         <div id="script-modal-box">
           <input id="script-name" placeholder="Name" />
-          <textarea id="script-body" placeholder="#!/bin/bash&#10;# Runs in ~/workspace every time this session's container starts.&#10;# Write it so re-running is harmless:&#10;[ -d myrepo ] || git clone https://github.com/org/myrepo.git myrepo" rows="12"></textarea>
-          <label class="script-check"><input type="checkbox" id="script-continue" /> Continue on error</label>
+          <textarea id="script-body" placeholder="#!/bin/bash&#10;# Runs in ~/workspace once, when a new session is created.&#10;git clone https://github.com/org/myrepo.git&#10;cp ~/templates/.env myrepo/.env" rows="12"></textarea>
+          <div class="skill-toggle-row">
+            <span class="skill-toggle-label">Continue on error</span>
+            <label class="switch">
+              <input type="checkbox" id="script-continue" />
+              <span class="switch-track"></span>
+            </label>
+          </div>
           <div class="skill-modal-actions">
             <button id="script-delete-btn" class="danger">Delete</button>
             <span class="skill-modal-spacer"></span>

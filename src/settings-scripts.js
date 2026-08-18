@@ -21,7 +21,7 @@ async function renderScripts() {
   const scriptList = await window.clauide.listScripts()
 
   if (scriptList.length === 0) {
-    renderEmptyGrid(scriptsGrid, 'No scripts yet', 'Run commands in every session as its container starts.')
+    renderEmptyGrid(scriptsGrid, 'No scripts yet', 'Prepare the workspace of every new session.')
     return
   }
 
@@ -40,7 +40,6 @@ async function renderScripts() {
         </label>
       </div>
       <div class="skill-meta">
-        <span class="skill-tag">${index + 1}</span>
         ${script.continueOnError ? '<span class="skill-tag">continues on error</span>' : ''}
         <span class="script-order">
           <button class="script-move" data-direction="up" ${index === 0 ? 'disabled' : ''} title="Run earlier">▲</button>

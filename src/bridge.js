@@ -72,6 +72,7 @@ async function route(method, [resource, id], body) {
     if (method === 'POST' && !id) {
       const session = await sessions.createSession()
       await syncAllEverywhere(session.containerId)
+      await scriptsStore.runForContainer(session.containerId).catch((err) => console.error('[scripts] run failed', err))
       windowRef.notify('sessions:changed')
       return pickSession(session)
     }

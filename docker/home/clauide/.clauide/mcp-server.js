@@ -123,13 +123,13 @@ const tools = [
 
   {
     name: 'list_scripts',
-    description: 'List every setup script, in the order they run (id, name, enabled, continueOnError).',
+    description: 'List every setup script, in the order they run (id, name, enabled, continueOnError). Setup scripts run once per session, when it is created.',
     inputSchema: { type: 'object', properties: {} }
   },
   {
     name: 'save_script',
     description:
-      'Create or update a setup script. Scripts run with bash in /home/clauide/workspace every time a session container starts — including when one is recreated — so write them to be safe to re-run, e.g. `[ -d repo ] || git clone ... repo`. Pass an existing id to update.',
+      'Create or update a setup script. Scripts run with bash in /home/clauide/workspace once per session, at the moment it is created — not when an existing session is reopened or its container recreated. Use them to prepare the workspace (clone repositories, drop in config); tools and packages belong in the base image, since anything installed outside the session volumes is lost when its container is recreated. Pass an existing id to update.',
     inputSchema: {
       type: 'object',
       properties: {

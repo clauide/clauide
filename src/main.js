@@ -109,6 +109,9 @@ ipcMain.handle('session:nextName', () => sessions.peekNextName())
 ipcMain.handle('session:create', async () => {
   const session = await sessions.createSession()
   await syncAllEverywhere(session.containerId)
+  // Creating a session is the only moment setup scripts run, so a failing one must not take the
+  // whole session down with it — the result is on the tab's "Script output" either way.
+  await scripts.runForContainer(session.containerId).catch((err) => console.error('[scripts] run failed', err))
   return session
 })
 
