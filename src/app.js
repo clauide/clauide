@@ -301,14 +301,14 @@ const scriptOutputModal = document.getElementById('script-output-modal')
 const scriptOutputList = document.getElementById('script-output-list')
 const failedScriptRuns = new Set()
 
-// Setup scripts run one container at a time and hold the session back until they finish, so the
-// progress line can go to whichever loading view is on screen without tracking which container it
-// belongs to — a session being created has no containerId here yet anyway.
+// Scripts only run while a session is being created, and one session is created at a time, so the
+// progress line can go to whichever loading view is on screen — the pending session has no
+// containerId to match against yet anyway.
 window.clauide.onScriptProgress(({ name, index, total }) => {
-  const text = `Running script ${index}/${total} — ${name}`
-  for (const el of mainEl.querySelectorAll('.session-webview.loading .loading-text')) el.textContent = text
-  const mainLoadingText = mainLoading.querySelector('.loading-text')
-  if (mainLoadingText) mainLoadingText.textContent = text
+  for (const el of mainEl.querySelectorAll('.session-webview.loading .loading-text')) {
+    el.textContent = `Running script ${index}/${total} — ${name}`
+    el.hidden = false
+  }
 })
 
 window.clauide.onScriptsDone(({ containerId, failed }) => {
@@ -358,7 +358,9 @@ document.getElementById('script-output-close-btn').addEventListener('click', () 
 function createLoadingView(message) {
   const el = document.createElement('div')
   el.className = 'session-webview loading'
-  el.innerHTML = `<div class="spinner"></div>${message ? `<p class="loading-text">${message}</p>` : ''}`
+  // The text node is always present, just empty until there is something to say — setup script
+  // progress arrives after this view is already on screen and needs somewhere to land.
+  el.innerHTML = `<div class="spinner"></div><p class="loading-text"${message ? '' : ' hidden'}>${message || ''}</p>`
   mainEl.appendChild(el)
   return el
 }
