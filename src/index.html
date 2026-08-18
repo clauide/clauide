@@ -27,6 +27,7 @@
           <div class="settings-tab" data-panel="github-panel">GitHub</div>
           <div class="settings-tab" data-panel="lsp-panel">LSP Servers</div>
           <div class="settings-tab" data-panel="claude-panel">Claude Code</div>
+          <div class="settings-tab" data-panel="scripts-panel">Scripts</div>
           <div class="settings-tab" data-panel="clauide-panel">Clauide</div>
         </div>
 
@@ -95,6 +96,11 @@
           <button id="claude-save-btn" disabled>Save</button>
         </div>
 
+        <div id="scripts-panel" class="settings-panel" hidden>
+          <div id="scripts-grid"></div>
+          <button id="new-script-btn">+ New Script</button>
+        </div>
+
         <div id="clauide-panel" class="settings-panel" hidden>
           <div class="settings-row">
             <div class="settings-row-body">
@@ -156,6 +162,31 @@
             <span class="skill-modal-spacer"></span>
             <button id="rule-cancel-btn">Cancel</button>
             <button id="rule-save-btn" disabled>Save</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="script-modal" hidden>
+        <div id="script-modal-box">
+          <input id="script-name" placeholder="Name" />
+          <textarea id="script-body" placeholder="#!/bin/bash&#10;# Runs in ~/workspace every time this session's container starts.&#10;# Write it so re-running is harmless:&#10;[ -d myrepo ] || git clone https://github.com/org/myrepo.git myrepo" rows="12"></textarea>
+          <label class="script-check"><input type="checkbox" id="script-continue" /> Continue on error</label>
+          <div class="skill-modal-actions">
+            <button id="script-delete-btn" class="danger">Delete</button>
+            <span class="skill-modal-spacer"></span>
+            <button id="script-cancel-btn">Cancel</button>
+            <button id="script-save-btn" disabled>Save</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="script-output-modal" hidden>
+        <div id="script-output-box">
+          <p class="empty-state-title">Script output</p>
+          <div id="script-output-list"></div>
+          <div class="skill-modal-actions">
+            <span class="skill-modal-spacer"></span>
+            <button id="script-output-close-btn">Close</button>
           </div>
         </div>
       </div>
@@ -231,6 +262,7 @@
     <script src="settings-github.js"></script>
     <script src="settings-lsp.js"></script>
     <script src="settings-claude.js"></script>
+    <script src="settings-scripts.js"></script>
     <script src="settings-clauide.js"></script>
   </body>
 </html>

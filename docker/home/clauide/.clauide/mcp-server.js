@@ -119,6 +119,34 @@ const tools = [
     name: 'set_lsp_server_enabled',
     description: 'Enable or disable a language server by id (get ids from list_lsp_servers, e.g. "typescript-lsp", "pyright-lsp"). Installing one for the first time takes a bit — it fetches the plugin from Anthropic\'s marketplace.',
     inputSchema: { type: 'object', properties: { id: { type: 'string' }, enabled: { type: 'boolean' } }, required: ['id', 'enabled'] }
+  },
+
+  {
+    name: 'list_scripts',
+    description: 'List every setup script, in the order they run (id, name, enabled, continueOnError).',
+    inputSchema: { type: 'object', properties: {} }
+  },
+  {
+    name: 'save_script',
+    description:
+      'Create or update a setup script. Scripts run with bash in /home/clauide/workspace every time a session container starts — including when one is recreated — so write them to be safe to re-run, e.g. `[ -d repo ] || git clone ... repo`. Pass an existing id to update.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        id: { type: 'string' },
+        name: { type: 'string' },
+        body: { type: 'string', description: 'The bash script to run' },
+        enabled: { type: 'boolean' },
+        continueOnError: { type: 'boolean', description: 'Keep running later scripts if this one exits non-zero' }
+      },
+      required: ['name', 'body']
+    }
+  },
+  { name: 'delete_script', description: 'Delete a setup script.', inputSchema: { type: 'object', properties: { id: { type: 'string' } }, required: ['id'] } },
+  {
+    name: 'set_script_enabled',
+    description: 'Enable or disable a setup script.',
+    inputSchema: { type: 'object', properties: { id: { type: 'string' }, enabled: { type: 'boolean' } }, required: ['id', 'enabled'] }
   }
 ]
 
@@ -173,6 +201,15 @@ function toolToRequest(name, args) {
       return { method: 'GET', path: '/lsp' }
     case 'set_lsp_server_enabled':
       return { method: 'PATCH', path: `/lsp/${args.id}`, body: { enabled: args.enabled } }
+
+    case 'list_scripts':
+      return { method: 'GET', path: '/scripts' }
+    case 'save_script':
+      return { method: 'POST', path: '/scripts', body: args }
+    case 'delete_script':
+      return { method: 'DELETE', path: `/scripts/${args.id}` }
+    case 'set_script_enabled':
+      return { method: 'PATCH', path: `/scripts/${args.id}`, body: { enabled: args.enabled } }
 
     default:
       throw new Error(`unknown tool ${name}`)

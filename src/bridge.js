@@ -5,6 +5,7 @@ const mcp = require('./mcp')
 const rules = require('./rules')
 const extensions = require('./extensions')
 const lsp = require('./lsp')
+const scriptsStore = require('./scripts')
 const { syncEverywhere, syncAllEverywhere } = require('./sync')
 const { PORT, getToken } = require('./bridgeConfig')
 const windowRef = require('./windowRef')
@@ -39,6 +40,18 @@ function send(res, status, body) {
 
 const pickSession = ({ id, name, containerId }) => ({ id, name, containerId })
 
+/** listSessions() brings stopped containers back up, and a recreated one has lost everything
+ *  outside its two volumes — the GitHub credentials, gh auth, MCP config and editor extensions all
+ *  need pushing back in before the session is handed out, or it answers as healthy while being
+ *  unable to push, run gh, or reach any MCP server. */
+async function listSessionsSynced() {
+  const list = await sessions.listSessions()
+  for (const session of list) {
+    if (session.recreated) await syncAllEverywhere(session.containerId)
+  }
+  return list
+}
+
 async function sessionIdOrThrow(containerId) {
   const id = sessions.findIdByContainerId(containerId)
   if (!id) throw httpError(404, `no session with containerId ${containerId}`)
@@ -50,9 +63,9 @@ async function sessionIdOrThrow(containerId) {
  *  not to generalize the IPC handlers (the underlying method names genuinely differ per module). */
 async function route(method, [resource, id], body) {
   if (resource === 'sessions') {
-    if (method === 'GET' && !id) return (await sessions.listSessions()).map(pickSession)
+    if (method === 'GET' && !id) return (await listSessionsSynced()).map(pickSession)
     if (method === 'GET' && id) {
-      const match = (await sessions.listSessions()).find((s) => s.containerId === id)
+      const match = (await listSessionsSynced()).find((s) => s.containerId === id)
       if (!match) throw httpError(404, `no session with containerId ${id}`)
       return pickSession(match)
     }
@@ -162,6 +175,27 @@ async function route(method, [resource, id], body) {
       lsp.setEnabled(id, body.enabled)
       await syncEverywhere('lsp')
       windowRef.notify('lsp:changed')
+      return { ok: true }
+    }
+  }
+
+  // No syncEverywhere here, unlike every resource above: a script is an action tied to a container
+  // starting up, so writing one must not fire it against the sessions that are already running.
+  if (resource === 'scripts') {
+    if (method === 'GET' && !id) return scriptsStore.listScripts()
+    if (method === 'POST' && !id) {
+      const scriptId = scriptsStore.saveScript(body)
+      windowRef.notify('scripts:changed')
+      return { id: scriptId }
+    }
+    if (method === 'DELETE' && id) {
+      scriptsStore.deleteScript(id)
+      windowRef.notify('scripts:changed')
+      return { ok: true }
+    }
+    if (method === 'PATCH' && id) {
+      scriptsStore.setEnabled(id, body.enabled)
+      windowRef.notify('scripts:changed')
       return { ok: true }
     }
   }

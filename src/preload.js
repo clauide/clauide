@@ -51,6 +51,16 @@ contextBridge.exposeInMainWorld('clauide', {
   setLspServerEnabled: (id, enabled) => ipcRenderer.invoke('lsp:setEnabled', id, enabled),
   onLspChanged: (callback) => ipcRenderer.on('lsp:changed', () => callback()),
 
+  listScripts: () => ipcRenderer.invoke('scripts:list'),
+  saveScript: (script) => ipcRenderer.invoke('scripts:save', script),
+  deleteScript: (id) => ipcRenderer.invoke('scripts:delete', id),
+  setScriptEnabled: (id, enabled) => ipcRenderer.invoke('scripts:setEnabled', id, enabled),
+  moveScript: (id, direction) => ipcRenderer.invoke('scripts:move', id, direction),
+  getScriptRun: (containerId) => ipcRenderer.invoke('scripts:lastRun', containerId),
+  onScriptsChanged: (callback) => ipcRenderer.on('scripts:changed', () => callback()),
+  onScriptProgress: (callback) => ipcRenderer.on('scripts:progress', (_event, info) => callback(info)),
+  onScriptsDone: (callback) => ipcRenderer.on('scripts:done', (_event, info) => callback(info)),
+
   onUpdateReady: (callback) => ipcRenderer.on('update:ready', (_event, version) => callback(version)),
   onUpdateManual: (callback) => ipcRenderer.on('update:manual', (_event, version) => callback(version)),
   installUpdate: () => ipcRenderer.send('update:install'),

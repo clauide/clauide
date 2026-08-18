@@ -220,7 +220,11 @@ async function listSessions() {
       s.claudeVolume = `clauide-claude-vol-${s.id}`
       storeChanged = true
     }
+    // A recreated container comes up with a fresh filesystem, so callers have to re-sync it —
+    // report which ones so they can skip the sessions that were already running and stayed synced.
+    let recreated = false
     if (!(await isRunning(s.containerId))) {
+      recreated = true
       const result = await startContainer(s.containerId, s.volume, s.claudeVolume).catch(() => null)
       if (result && !result.volumeExisted && !s.name.startsWith('⚠')) {
         s.name = `⚠ ${s.name} (data lost)`
@@ -230,7 +234,7 @@ async function listSessions() {
     try {
       const port = await resolvePort(s.containerId)
       await waitReady(port)
-      results.push({ id: s.id, name: s.name, port, containerId: s.containerId })
+      results.push({ id: s.id, name: s.name, port, containerId: s.containerId, recreated })
     } catch {
       // couldn't bring this one back up; leave it in the store in case a retry helps later
     }

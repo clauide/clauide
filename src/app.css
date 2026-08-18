@@ -194,7 +194,8 @@
 #mcp-panel,
 #rules-panel,
 #extensions-panel,
-#lsp-panel {
+#lsp-panel,
+#scripts-panel {
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -204,7 +205,8 @@
 #mcp-grid,
 #rules-grid,
 #extensions-grid,
-#lsp-grid {
+#lsp-grid,
+#scripts-grid {
   flex: 1;
   min-height: 0;
   overflow-y: auto;
@@ -311,6 +313,7 @@
 #new-mcp-btn,
 #new-rule-btn,
 #new-extension-btn,
+#new-script-btn,
 #claude-save-btn {
   -webkit-app-region: no-drag;
   position: fixed;
@@ -329,6 +332,7 @@
 #new-mcp-btn:hover,
 #new-rule-btn:hover,
 #new-extension-btn:hover,
+#new-script-btn:hover,
 #claude-save-btn:hover {
   filter: brightness(1.1);
 }
@@ -478,6 +482,8 @@
 #skill-modal,
 #mcp-modal,
 #rule-modal,
+#script-modal,
+#script-output-modal,
 #extension-modal {
   -webkit-app-region: no-drag;
   position: fixed;
@@ -492,6 +498,7 @@
 #skill-modal-box,
 #mcp-modal-box,
 #rule-modal-box,
+#script-modal-box,
 #extension-modal-box {
   width: 480px;
   max-height: 80vh;
@@ -512,6 +519,8 @@
 #mcp-modal-box select,
 #rule-modal-box input,
 #rule-modal-box textarea,
+#script-modal-box input,
+#script-modal-box textarea,
 #extension-modal-box input,
 #claude-panel select {
   background: var(--panel);
@@ -526,7 +535,8 @@
 
 #skill-modal-box textarea,
 #mcp-modal-box textarea,
-#rule-modal-box textarea {
+#rule-modal-box textarea,
+#script-modal-box textarea {
   max-height: 320px;
 }
 
@@ -538,6 +548,8 @@
 #mcp-modal-box select:focus,
 #rule-modal-box input:focus,
 #rule-modal-box textarea:focus,
+#script-modal-box input:focus,
+#script-modal-box textarea:focus,
 #extension-modal-box input:focus,
 #claude-panel select:focus {
   outline: none;
@@ -954,4 +966,98 @@
   border-top-color: currentColor;
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
+}
+
+.script-check {
+  -webkit-app-region: no-drag;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12.5px;
+  color: var(--dim);
+  cursor: pointer;
+}
+
+.script-order {
+  display: flex;
+  gap: 2px;
+  margin-left: auto;
+}
+
+.script-move {
+  -webkit-app-region: no-drag;
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--dim);
+  font-size: 9px;
+  line-height: 1;
+  padding: 3px 5px;
+  cursor: pointer;
+}
+
+.script-move:hover:not(:disabled) {
+  color: var(--text);
+  border-color: var(--dim);
+}
+
+.script-move:disabled {
+  opacity: 0.3;
+  cursor: default;
+}
+
+#script-output-box {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 640px;
+  max-width: 90vw;
+  max-height: 80vh;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  padding: 16px;
+}
+
+#script-output-list {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.script-output-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.script-output-body {
+  margin: 6px 0 0;
+  padding: 8px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  font-size: 11.5px;
+  line-height: 1.5;
+  color: var(--dim);
+  white-space: pre-wrap;
+  word-break: break-word;
+  max-height: 220px;
+  overflow-y: auto;
+}
+
+.skill-tag.failed {
+  color: var(--pink);
+  border-color: var(--pink);
+}
+
+.context-menu-item.disabled {
+  opacity: 0.35;
+  pointer-events: none;
+}
+
+#script-body {
+  font-family: 'SF Mono', Menlo, monospace;
+  font-size: 12px;
+  line-height: 1.6;
 }

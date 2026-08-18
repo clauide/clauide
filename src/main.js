@@ -11,6 +11,7 @@ const github = require('./github')
 const lsp = require('./lsp')
 const claudeConfig = require('./claudeConfig')
 const ptyManager = require('./pty')
+const scripts = require('./scripts')
 const bridge = require('./bridge')
 const updater = require('./updater')
 const reset = require('./reset')
@@ -123,7 +124,15 @@ ipcMain.handle('session:list', async () => {
 // MCP path, where nothing else tells the renderer) needs to broadcast session changes.
 ipcMain.handle('session:rename', (_event, id, name) => sessions.renameSession(id, name))
 ipcMain.handle('session:remove', (_event, id) => sessions.removeSession(id))
-ipcMain.handle('session:reconnect', (_event, containerId) => sessions.reconnectContainer(containerId))
+// Recreating drops the container's own filesystem, and only skills/rules/LSP live in the ~/.claude
+// volume that survives it — the GitHub credentials, gh auth, MCP config (~/.claude.json sits beside
+// the volume, not inside it) and code-server extensions all have to be pushed back in, or the
+// session comes back looking intact while quietly unable to push, run gh, or reach any MCP server.
+ipcMain.handle('session:reconnect', async (_event, containerId) => {
+  const result = await sessions.reconnectContainer(containerId)
+  await syncAllEverywhere(containerId)
+  return result
+})
 
 ipcMain.handle('pty:create', (event, containerId) =>
   ptyManager.createPty(
@@ -221,6 +230,29 @@ ipcMain.handle('github:connectWithToken', async (_event, token) => {
 
 ipcMain.handle('claudeConfig:get', () => claudeConfig.get())
 ipcMain.handle('claudeConfig:save', (_event, input) => claudeConfig.save(input))
+
+// Saving a script deliberately does not sync: unlike the mirrored resources, a script is an action
+// that belongs to a container coming up, and running it the moment someone edits the text would fire
+// it against every open session with no warning.
+ipcMain.handle('scripts:list', () => scripts.listScripts())
+ipcMain.handle('scripts:save', (_event, input) => {
+  const id = scripts.saveScript(input)
+  windowRef.notify('scripts:changed')
+  return id
+})
+ipcMain.handle('scripts:delete', (_event, id) => {
+  scripts.deleteScript(id)
+  windowRef.notify('scripts:changed')
+})
+ipcMain.handle('scripts:setEnabled', (_event, id, enabled) => {
+  scripts.setEnabled(id, enabled)
+  windowRef.notify('scripts:changed')
+})
+ipcMain.handle('scripts:move', (_event, id, direction) => {
+  scripts.moveScript(id, direction)
+  windowRef.notify('scripts:changed')
+})
+ipcMain.handle('scripts:lastRun', (_event, containerId) => scripts.lastRun(containerId))
 
 ipcMain.on('update:install', () => updater.install())
 ipcMain.on('update:openReleases', () => updater.openReleases())

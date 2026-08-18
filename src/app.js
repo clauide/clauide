@@ -258,6 +258,7 @@ const menu = document.createElement('div')
 menu.id = 'context-menu'
 menu.innerHTML = `
   <div class="context-menu-item" id="context-menu-rename">Rename</div>
+  <div class="context-menu-item" id="context-menu-scripts">Script output</div>
   <div class="context-menu-item" id="context-menu-delete">Delete</div>
 `
 document.body.appendChild(menu)
@@ -277,6 +278,13 @@ function showContextMenu(x, y, item, ref) {
     deleteItem(item, ref)
     hideContextMenu()
   }
+  const scriptsItem = document.getElementById('context-menu-scripts')
+  scriptsItem.classList.toggle('disabled', !ref.containerId)
+  scriptsItem.onclick = () => {
+    if (!ref.containerId) return
+    showScriptOutput(ref.containerId)
+    hideContextMenu()
+  }
 }
 
 function hideContextMenu() {
@@ -287,6 +295,64 @@ function hideContextMenu() {
 document.addEventListener('click', hideContextMenu)
 document.addEventListener('contextmenu', (event) => {
   if (!event.target.closest('.session-item')) hideContextMenu()
+})
+
+const scriptOutputModal = document.getElementById('script-output-modal')
+const scriptOutputList = document.getElementById('script-output-list')
+const failedScriptRuns = new Set()
+
+// Setup scripts run one container at a time and hold the session back until they finish, so the
+// progress line can go to whichever loading view is on screen without tracking which container it
+// belongs to — a session being created has no containerId here yet anyway.
+window.clauide.onScriptProgress(({ name, index, total }) => {
+  const text = `Running script ${index}/${total} — ${name}`
+  for (const el of mainEl.querySelectorAll('.session-webview.loading .loading-text')) el.textContent = text
+  const mainLoadingText = mainLoading.querySelector('.loading-text')
+  if (mainLoadingText) mainLoadingText.textContent = text
+})
+
+window.clauide.onScriptsDone(({ containerId, failed }) => {
+  if (failed) failedScriptRuns.add(containerId)
+  else failedScriptRuns.delete(containerId)
+})
+
+async function showScriptOutput(containerId) {
+  const results = await window.clauide.getScriptRun(containerId)
+  scriptOutputList.innerHTML = results.length
+    ? ''
+    : '<p class="empty-state-text">No scripts ran for this session.</p>'
+
+  for (const result of results) {
+    const row = document.createElement('div')
+    row.className = 'script-output-row'
+    const status = result.skipped
+      ? 'skipped'
+      : result.exitCode === 0
+        ? 'ok'
+        : `exit ${result.exitCode}`
+    row.innerHTML = `
+      <div class="script-output-head">
+        <span class="skill-name">${result.name}</span>
+        <span class="skill-tag ${result.exitCode ? 'failed' : ''}">${status}</span>
+      </div>
+    `
+    if (result.output) {
+      const pre = document.createElement('pre')
+      pre.className = 'script-output-body'
+      pre.textContent = result.output
+      row.appendChild(pre)
+    }
+    scriptOutputList.appendChild(row)
+  }
+
+  scriptOutputModal.hidden = false
+}
+
+closeOnBackdropClick(scriptOutputModal, () => {
+  scriptOutputModal.hidden = true
+})
+document.getElementById('script-output-close-btn').addEventListener('click', () => {
+  scriptOutputModal.hidden = true
 })
 
 function createLoadingView(message) {
