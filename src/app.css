@@ -1212,3 +1212,12 @@
 #plugins-grid .skill-card {
   max-height: none;
 }
+
+/* The line clamp needs overflow:hidden, which zeroes the description's automatic minimum size and
+   lets it be squeezed as a column flex item — and since the grid row is sized from that squeezed
+   contribution, the card ends up shorter than its own text and cuts it mid-line. Refusing to shrink
+   makes the clamped three lines the real floor, so the row grows to fit them. */
+#plugins-grid .skill-desc,
+#plugins-grid .skill-meta {
+  flex-shrink: 0;
+}
