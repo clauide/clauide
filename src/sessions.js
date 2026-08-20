@@ -176,6 +176,10 @@ async function startContainer(containerId, volume, claudeVolume) {
     imageName(),
     '--auth',
     'none',
+    // code-server polls GitHub for releases every 6 hours and announces them in the editor, but the
+    // version here is pinned by the Dockerfile — the notification only ever offers an upgrade the
+    // user has no way to take.
+    '--disable-update-check',
     '/home/clauide/workspace'
   ])
   return { volumeExisted: existed }
