@@ -1201,3 +1201,14 @@
   color: var(--pink);
   padding-bottom: 8px;
 }
+
+/* Plugin descriptions are far longer than a skill's one-liner and their names routinely wrap, so
+   these cards grow to fit their (still line-clamped) content instead of clipping it at a fixed
+   height. Wider columns keep the names on one line more often. */
+#plugins-grid {
+  grid-template-columns: repeat(auto-fill, minmax(220px, 300px));
+}
+
+#plugins-grid .skill-card {
+  max-height: none;
+}

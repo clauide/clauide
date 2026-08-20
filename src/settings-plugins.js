@@ -18,6 +18,10 @@ function renderPluginCards() {
       )
     : pluginsCache
 
+  // Enabled first, then alphabetical. Sorting happens per render rather than on toggle, so a card
+  // does not jump out from under the cursor the moment it is switched on.
+  const ordered = [...matches].sort((a, b) => Number(b.enabled) - Number(a.enabled) || a.name.localeCompare(b.name))
+
   if (matches.length === 0) {
     renderEmptyGrid(pluginsGrid, query ? 'No matches' : 'No plugins', query ? 'Try a different search.' : 'Add a marketplace to see plugins.')
     return
@@ -26,7 +30,11 @@ function renderPluginCards() {
   pluginsGrid.classList.remove('empty')
   pluginsGrid.innerHTML = ''
 
-  for (const plugin of matches) {
+  // With a single marketplace configured the chip says the same thing on every card and costs a
+  // whole row of card height, so it only earns its place once there is something to distinguish.
+  const showMarketplace = new Set(pluginsCache.map((p) => p.marketplace)).size > 1
+
+  for (const plugin of ordered) {
     const card = document.createElement('div')
     card.className = 'skill-card'
     card.innerHTML = `
@@ -40,7 +48,7 @@ function renderPluginCards() {
       <p class="skill-desc">${plugin.description}</p>
       <div class="skill-meta">
         ${plugin.category ? `<span class="skill-tag">${plugin.category}</span>` : ''}
-        <span class="skill-tag">${plugin.marketplace}</span>
+        ${showMarketplace ? `<span class="skill-tag">${plugin.marketplace}</span>` : ''}
       </div>
     `
 
