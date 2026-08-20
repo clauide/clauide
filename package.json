@@ -1,6 +1,6 @@
 {
   "name": "clauide",
-  "version": "0.1.11",
+  "version": "0.1.12",
   "main": "src/main.js",
   "scripts": {
     "start": "electron .",
