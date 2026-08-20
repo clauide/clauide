@@ -25,7 +25,7 @@
           <div class="settings-tab" data-panel="rules-panel">Rules</div>
           <div class="settings-tab" data-panel="extensions-panel">Extensions</div>
           <div class="settings-tab" data-panel="github-panel">GitHub</div>
-          <div class="settings-tab" data-panel="lsp-panel">LSP Servers</div>
+          <div class="settings-tab" data-panel="plugins-panel">Marketplace</div>
           <div class="settings-tab" data-panel="claude-panel">Claude Code</div>
           <div class="settings-tab" data-panel="scripts-panel">Scripts</div>
           <div class="settings-tab" data-panel="clauide-panel">Clauide</div>
@@ -74,8 +74,14 @@
           </div>
         </div>
 
-        <div id="lsp-panel" class="settings-panel" hidden>
-          <div id="lsp-grid"></div>
+        <div id="plugins-panel" class="settings-panel" hidden>
+          <div id="plugins-toolbar">
+            <input id="plugins-search" placeholder="Search plugins..." spellcheck="false" />
+            <input id="marketplace-repo" placeholder="Add a marketplace (owner/repo)" spellcheck="false" />
+            <button id="marketplace-add-btn" class="row-btn" disabled>Add</button>
+          </div>
+          <p class="settings-row-text" id="plugins-error" hidden></p>
+          <div id="plugins-grid"></div>
         </div>
 
         <div id="claude-panel" class="settings-panel" hidden>
@@ -282,7 +288,7 @@
     <script src="settings-rules.js"></script>
     <script src="settings-extensions.js"></script>
     <script src="settings-github.js"></script>
-    <script src="settings-lsp.js"></script>
+    <script src="settings-plugins.js"></script>
     <script src="settings-claude.js"></script>
     <script src="settings-scripts.js"></script>
     <script src="settings-env.js"></script>

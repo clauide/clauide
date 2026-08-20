@@ -194,7 +194,7 @@
 #mcp-panel,
 #rules-panel,
 #extensions-panel,
-#lsp-panel,
+#plugins-panel,
 #scripts-panel {
   display: flex;
   flex-direction: column;
@@ -205,7 +205,7 @@
 #mcp-grid,
 #rules-grid,
 #extensions-grid,
-#lsp-grid,
+#plugins-grid,
 #scripts-grid {
   flex: 1;
   min-height: 0;
@@ -218,7 +218,7 @@
 #mcp-grid::-webkit-scrollbar,
 #rules-grid::-webkit-scrollbar,
 #extensions-grid::-webkit-scrollbar,
-#lsp-grid::-webkit-scrollbar {
+#plugins-grid::-webkit-scrollbar {
   display: none;
 }
 
@@ -358,7 +358,7 @@
 #mcp-grid,
 #rules-grid,
 #extensions-grid,
-#lsp-grid,
+#plugins-grid,
 #scripts-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(180px, 240px));
@@ -1164,4 +1164,40 @@
 
 #env-error {
   color: var(--pink);
+}
+
+#plugins-toolbar {
+  display: flex;
+  gap: 8px;
+  padding-bottom: 12px;
+}
+
+#plugins-toolbar input {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  color: var(--text);
+  font-family: inherit;
+  font-size: 13px;
+  padding: 8px 12px;
+  min-height: 36px;
+}
+
+#plugins-toolbar input:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+#plugins-search {
+  flex: 1;
+  min-width: 0;
+}
+
+#marketplace-repo {
+  width: 240px;
+  flex-shrink: 0;
+}
+
+#plugins-error {
+  color: var(--pink);
+  padding-bottom: 8px;
 }

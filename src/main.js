@@ -8,7 +8,7 @@ const mcp = require('./mcp')
 const rules = require('./rules')
 const extensions = require('./extensions')
 const github = require('./github')
-const lsp = require('./lsp')
+const plugins = require('./plugins')
 const claudeConfig = require('./claudeConfig')
 const env = require('./env')
 const ptyManager = require('./pty')
@@ -128,7 +128,7 @@ ipcMain.handle('session:list', async () => {
 // MCP path, where nothing else tells the renderer) needs to broadcast session changes.
 ipcMain.handle('session:rename', (_event, id, name) => sessions.renameSession(id, name))
 ipcMain.handle('session:remove', (_event, id) => sessions.removeSession(id))
-// Recreating drops the container's own filesystem, and only skills/rules/LSP live in the ~/.claude
+// Recreating drops the container's own filesystem, and only skills/rules/plugins live in the ~/.claude
 // volume that survives it — the GitHub credentials, gh auth, MCP config (~/.claude.json sits beside
 // the volume, not inside it) and code-server extensions all have to be pushed back in, or the
 // session comes back looking intact while quietly unable to push, run gh, or reach any MCP server.
@@ -280,11 +280,21 @@ ipcMain.handle('env:delete', async (_event, key) => {
   windowRef.notify('env:changed')
 })
 
-ipcMain.handle('lsp:list', () => lsp.listServers())
-ipcMain.handle('lsp:setEnabled', async (_event, id, enabled) => {
-  lsp.setEnabled(id, enabled)
-  await syncEverywhere('lsp')
-  windowRef.notify('lsp:changed')
+ipcMain.handle('plugins:list', () => plugins.listPlugins())
+ipcMain.handle('plugins:setEnabled', async (_event, id, enabled) => {
+  plugins.setEnabled(id, enabled)
+  await syncEverywhere('plugins')
+  windowRef.notify('plugins:changed')
+})
+ipcMain.handle('plugins:listMarketplaces', () => plugins.listMarketplaces())
+ipcMain.handle('plugins:addMarketplace', async (_event, repo) => {
+  const added = await plugins.addMarketplace(repo)
+  windowRef.notify('plugins:changed')
+  return added
+})
+ipcMain.handle('plugins:removeMarketplace', async (_event, repo) => {
+  plugins.removeMarketplace(repo)
+  windowRef.notify('plugins:changed')
 })
 
 /** A container can die out from under a running session (stopped/removed manually, OOM, etc.)

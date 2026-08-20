@@ -4,7 +4,7 @@ const skills = require('./skills')
 const mcp = require('./mcp')
 const rules = require('./rules')
 const extensions = require('./extensions')
-const lsp = require('./lsp')
+const plugins = require('./plugins')
 const scriptsStore = require('./scripts')
 const { syncEverywhere, syncAllEverywhere } = require('./sync')
 const { PORT, getToken } = require('./bridgeConfig')
@@ -170,13 +170,22 @@ async function route(method, [resource, id], body) {
     }
   }
 
-  if (resource === 'lsp') {
-    if (method === 'GET' && !id) return lsp.listServers()
+  if (resource === 'plugins') {
+    if (method === 'GET' && !id) return plugins.listPlugins()
     if (method === 'PATCH' && id) {
-      lsp.setEnabled(id, body.enabled)
-      await syncEverywhere('lsp')
-      windowRef.notify('lsp:changed')
+      plugins.setEnabled(id, body.enabled)
+      await syncEverywhere('plugins')
+      windowRef.notify('plugins:changed')
       return { ok: true }
+    }
+  }
+
+  if (resource === 'marketplaces') {
+    if (method === 'GET' && !id) return plugins.listMarketplaces()
+    if (method === 'POST' && !id) {
+      const added = await plugins.addMarketplace(body.repo)
+      windowRef.notify('plugins:changed')
+      return added
     }
   }
 

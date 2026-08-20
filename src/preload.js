@@ -47,9 +47,12 @@ contextBridge.exposeInMainWorld('clauide', {
   getClaudeConfig: () => ipcRenderer.invoke('claudeConfig:get'),
   saveClaudeConfig: (config) => ipcRenderer.invoke('claudeConfig:save', config),
 
-  listLspServers: () => ipcRenderer.invoke('lsp:list'),
-  setLspServerEnabled: (id, enabled) => ipcRenderer.invoke('lsp:setEnabled', id, enabled),
-  onLspChanged: (callback) => ipcRenderer.on('lsp:changed', () => callback()),
+  listPlugins: () => ipcRenderer.invoke('plugins:list'),
+  setPluginEnabled: (id, enabled) => ipcRenderer.invoke('plugins:setEnabled', id, enabled),
+  listMarketplaces: () => ipcRenderer.invoke('plugins:listMarketplaces'),
+  addMarketplace: (repo) => ipcRenderer.invoke('plugins:addMarketplace', repo),
+  removeMarketplace: (repo) => ipcRenderer.invoke('plugins:removeMarketplace', repo),
+  onPluginsChanged: (callback) => ipcRenderer.on('plugins:changed', () => callback()),
 
   listEnvVars: () => ipcRenderer.invoke('env:list'),
   revealEnvVar: (key) => ipcRenderer.invoke('env:reveal', key),

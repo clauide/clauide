@@ -111,14 +111,24 @@ const tools = [
   },
 
   {
-    name: 'list_lsp_servers',
-    description: 'List every available language server (id, name, enabled) — installs into every session when enabled, giving Claude Code go-to-definition, find-references and diagnostics for that language.',
+    name: 'list_plugins',
+    description: 'List every Claude Code plugin available across the configured marketplaces (id, name, description, category, marketplace, enabled). Enabled plugins are installed into every session — this is also where language servers live, e.g. "typescript-lsp@claude-plugins-official".',
     inputSchema: { type: 'object', properties: {} }
   },
   {
-    name: 'set_lsp_server_enabled',
-    description: 'Enable or disable a language server by id (get ids from list_lsp_servers, e.g. "typescript-lsp", "pyright-lsp"). Installing one for the first time takes a bit — it fetches the plugin from Anthropic\'s marketplace.',
+    name: 'set_plugin_enabled',
+    description: 'Enable or disable a plugin by its full id (get ids from list_plugins, e.g. "pyright-lsp@claude-plugins-official"). Installing one for the first time takes a bit — it is fetched from its marketplace.',
     inputSchema: { type: 'object', properties: { id: { type: 'string' }, enabled: { type: 'boolean' } }, required: ['id', 'enabled'] }
+  },
+  {
+    name: 'list_marketplaces',
+    description: 'List the plugin marketplaces Clauide reads plugins from.',
+    inputSchema: { type: 'object', properties: {} }
+  },
+  {
+    name: 'add_marketplace',
+    description: 'Add a plugin marketplace by GitHub repository, e.g. "anthropics/claude-plugins-official". Its plugins then show up in list_plugins.',
+    inputSchema: { type: 'object', properties: { repo: { type: 'string' } }, required: ['repo'] }
   },
 
   {
@@ -197,10 +207,14 @@ function toolToRequest(name, args) {
     case 'set_extension_enabled':
       return { method: 'PATCH', path: `/extensions/${args.id}`, body: { enabled: args.enabled } }
 
-    case 'list_lsp_servers':
-      return { method: 'GET', path: '/lsp' }
-    case 'set_lsp_server_enabled':
-      return { method: 'PATCH', path: `/lsp/${args.id}`, body: { enabled: args.enabled } }
+    case 'list_plugins':
+      return { method: 'GET', path: '/plugins' }
+    case 'set_plugin_enabled':
+      return { method: 'PATCH', path: `/plugins/${args.id}`, body: { enabled: args.enabled } }
+    case 'list_marketplaces':
+      return { method: 'GET', path: '/marketplaces' }
+    case 'add_marketplace':
+      return { method: 'POST', path: '/marketplaces', body: { repo: args.repo } }
 
     case 'list_scripts':
       return { method: 'GET', path: '/scripts' }
